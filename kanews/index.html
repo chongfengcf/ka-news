@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<link href="css/mui.min.css" rel="stylesheet" />
+	</head>
+	<body>
+
+
+
+		<!-- 底部导航 -->
+		<nav class="mui-bar mui-bar-tab">
+			<a class="mui-tab-item mui-active" id="hometab">
+				<span class="mui-icon mui-icon-paperplane"></span>
+				<span class="mui-tab-label">首页</span>
+			</a>
+			<a class="mui-tab-item" id="mytab">
+				<span class="mui-icon mui-icon-person "></span>
+				<span class="mui-tab-label">我的</span>
+			</a>
+		</nav>
+
+
+		<script src="js/mui.min.js"></script>
+		<script>
+			mui.init({
+				//首先加载首页
+				subpages: [{
+					url: 'news-list.html',
+					id: 'news-list',
+					styles: {
+						top: '45px', //mui标题栏默认高度为45px；
+						bottom: '50px' //默认为0px，可不定义；
+					}
+				}],
+				//预加载页面
+				preloadPages: [{
+						url: 'my.html',
+						id: 'my',
+						styles: {
+							hardwareAccelerated: true,
+							top: '45px', //mui标题栏默认高度为45px；
+							bottom: '50px' //默认为0px，可不定义；
+						}
+					},
+					{
+						url: 'login.html',
+						id: 'login',
+						styles: {
+							top: '45px', //mui标题栏默认高度为45px；
+							bottom: '50px' //默认为0px，可不定义；
+						}
+					},
+				]
+			});
+
+			mui.plusReady(function() {
+
+				//底部导航跳转
+				document.getElementById("hometab").addEventListener("tap", function() {
+					plus.webview.show("news-list");
+					plus.webview.hide("my");
+					plus.webview.hide("login");
+				});
+
+				document.getElementById("mytab").addEventListener("tap", function() {
+					var isLogin = plus.storage.getItem("LoginFlag");
+					if (isLogin) {
+						plus.webview.getWebviewById("my").reload();
+						plus.webview.show("my");
+					} else {
+						plus.webview.show("login");
+					}
+					//plus.webview.show("my");
+				})
+			});
+		</script>
+	</body>
+</html>

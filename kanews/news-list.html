@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<link href="css/frozenui/frozenui.css" rel="stylesheet" />
+
+	</head>
+
+	<body>
+
+
+		<div id="refreshContainer" class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<!-- 新闻分类 -->
+				<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+					<div id="newstype" class="mui-scroll">
+						<a class="mui-control-item mui-active">
+							推荐
+						</a>
+						<a class="mui-control-item">
+							国内
+						</a>
+						<a class="mui-control-item">
+							国际
+						</a>
+						<a class="mui-control-item">
+							科技
+						</a>
+						<a class="mui-control-item">
+							财经
+						</a>
+					</div>
+				</div>
+
+				<!-- 轮播图 -->
+				<div id="slider" class="mui-slider">
+					<div class="mui-slider-group mui-slider-loop">
+						<!-- 额外增加的一个节点(循环轮播：第一个节点是最后一张轮播) -->
+						<div class="mui-slider-item mui-slider-item-duplicate">
+							<a href="#">
+								<img src="img/banner.jpg">
+								<p class="mui-slider-title">静静看这世界</p>
+							</a>
+						</div>
+						<div class="mui-slider-item">
+							<a href="#">
+								<img src="img/banner.jpg">
+								<p class="mui-slider-title">幸福就是可以一起睡觉</p>
+							</a>
+						</div>
+						<div class="mui-slider-item">
+							<a href="#">
+								<img src="img/banner.jpg">
+								<p class="mui-slider-title">想要一间这样的木屋，静静的喝咖啡</p>
+							</a>
+						</div>
+						<div class="mui-slider-item">
+							<a href="#">
+								<img src="img/banner.jpg">
+								<p class="mui-slider-title">Color of SIP CBD</p>
+							</a>
+						</div>
+						<div class="mui-slider-item">
+							<a href="#">
+								<img src="img/banner.jpg">
+								<p class="mui-slider-title">静静看这世界</p>
+							</a>
+						</div>
+						<!-- 额外增加的一个节点(循环轮播：最后一个节点是第一张轮播) -->
+						<div class="mui-slider-item mui-slider-item-duplicate">
+							<a href="#">
+								<img src="img/banner.jpg">
+								<p class="mui-slider-title">幸福就是可以一起睡觉</p>
+							</a>
+						</div>
+					</div>
+					<div class="mui-slider-indicator mui-text-right">
+						<div class="mui-indicator mui-active"></div>
+						<div class="mui-indicator"></div>
+						<div class="mui-indicator"></div>
+						<div class="mui-indicator"></div>
+					</div>
+				</div>
+
+				<!-- 新闻列表 -->
+				<ul id="newsul" class="ui-list ui-border-tb ">
+
+				</ul>
+			</div>
+			<!-- 首页弹窗 -->
+
+			<div id="newsdialog" class="ui-dialog ui-dialog-operate show">
+				<div class="ui-dialog-cnt">
+					<div class="ui-dialog-hd">
+						<div class="ui-img">
+							<span style="background-image:url(img/banner.jpg)"></span>
+						</div>
+					</div>
+					<div class="ui-dialog-bd">
+						<h3>用咔新闻看世界</h3>
+						<p>欢迎使用咔新闻H5客户端</p>
+						<p>Power By sx</p>
+					</div>
+					<div class="ui-dialog-ft">
+						<button class="ui-btn-lg">马上体验</button>
+					</div>
+					<i class="ui-dialog-close" data-role="button"></i>
+				</div>
+			</div>
+		</div>
+
+
+
+		<script src="js/mui.js"></script>
+		<script src="js/template-web.js"></script>
+
+		<script id="newslist" type="text/html">
+			{{each list}}
+			<li id="{{$value[0]}}" mc="{{$value[1]}}" tu="{{$value[2]}}" lb="{{$value[3]}}">
+				<div class=" ui-list-img-horizontal">
+					<span style="background-image:url(http://192.168.124.5:5000/image/{{$value[2]}});background-size:100% 100%;"></span>
+				</div>
+				<div class="ui-list-info ui-border-t">
+					<h4 class="ui-nowrap"></h4>
+					<p class="ui-nowrap">{{$value[1]}}</p>
+				</div>
+			</li>
+			{{/each}}
+			
+		</script>
+
+		<script type="text/javascript">
+			var pages = 0;
+			var now_type = 0;
+			var newsul = document.getElementById('newsul');
+			var aa = document.getElementById('newstype').getElementsByTagName('a');
+			var has_next = new Array();
+			for (var i = 0; i < aa.length; i++) {
+				has_next[i] = true;
+			}
+
+			function getnewslist() {
+				mui.ajax('http://192.168.124.5:5000/news', {
+					data: {
+						pages: pages,
+						type: now_type
+					},
+					crossDomain: true,
+					dataType: 'json', //服务器返回json格式数据
+					type: 'get', //HTTP请求类型
+					timeout: 10000, //超时时间设置为10秒；
+					success: function(data) {
+						//服务器返回响应，根据响应结果，分析是否登录成功；
+						has_next[now_type] = data.next
+						var html = template('newslist', data);
+						newsul.innerHTML = newsul.innerHTML + html;
+					},
+					error: function(xhr, type, errorThrown) {
+						//异常处理；
+						mui.toast("无法连接服务器");
+					}
+				});
+			}
+
+			function pullupRefresh() {
+				mui('#refreshContainer').pullRefresh().endPullupToRefresh((!has_next[now_type]));
+				pages = pages + 1;
+				getnewslist();
+
+			}
+
+			mui.init({
+				pullRefresh: {
+					container: '#refreshContainer',
+					up: {
+						height: 1000, //可选.默认50.触发上拉加载拖动距离
+						auto: true,
+						contentrefresh: '正在加载...',
+						callback: pullupRefresh
+					}
+				}
+			});
+
+			mui.plusReady(function() {
+
+				//getnewslist(type);
+
+				// 				mui('#refreshContainer').scroll({
+				// 					scrollY: true, //是否竖向滚动
+				// 					scrollX: false, //是否横向滚动
+				// 					startX: 0, //初始化时滚动至x
+				// 					startY: 0, //初始化时滚动至y
+				// 					indicators: false, //是否显示滚动条
+				// 					deceleration: 0.0005, //阻尼系数,系数越小滑动越灵敏
+				// 					bounce: true //是否启用回弹
+				// 				});
+				
+				
+				for (var i = 0; i < aa.length; i++) {
+					(function(num) {
+						aa[i].addEventListener("tap", function() {
+							newsul.innerHTML = ""
+							pages = 1
+							now_type = num;
+							for (var i = 0; i < aa.length; i++) {
+								has_next[i] = true;
+							}
+							mui('#refreshContainer').pullRefresh().refresh(true);
+							getnewslist()
+						});
+					})(i)
+				}
+
+				//弹窗关闭
+				var newsdialog = document.getElementById("newsdialog");
+				newsdialog.addEventListener("tap", function() {
+					newsdialog.classList.remove("show");
+				})
+
+				var gallery = mui('#slider');
+				gallery.slider({
+					interval: 5000 //自动轮播周期，若为0则不自动播放，默认为0；
+				});
+
+
+				var titleNView = {
+					backgroundColor: '#f7f7f7', //导航栏背景色
+					titleText: '新闻详情', //导航栏标题
+					titleColor: '#000000', //文字颜色
+					type: 'transparent', //透明渐变样式
+					autoBackButton: true, //自动绘制返回箭头
+					splitLine: { //底部分割线
+						color: '#cccccc'
+					}
+				}
+
+				webview_detail = mui.preload({
+					url: 'detail.html',
+					id: 'detail',
+					styles: {
+						"render": "always", //一直渲染
+						"popGesture": "hide",
+						"titleNView": titleNView
+					}
+				});
+
+
+				//添加列表项的点击事件
+				mui('#newsul').on('tap', 'li', function(e) {
+					var id = this.getAttribute('id');
+					var title = this.getAttribute('mc');
+					var img = this.getAttribute('tu');
+					var type = this.getAttribute('lb');
+					//触发详情页面的newsId事件
+					mui.fire(webview_detail, 'get_detail', {
+						id: id,
+						title: title,
+						img: img,
+						type: type
+					});
+					//打开详情页面          
+					plus.webview.show("detail");
+				});
+
+			});
+		</script>
+	</body>
+
+</html>

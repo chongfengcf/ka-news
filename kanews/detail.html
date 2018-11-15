@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<link href="css/detail.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<div class="mui-content">
+			<!--顶部banner图 开始-->
+			<div id="kr-article-banner" class="kr-article-banner">
+				<div id="kr-article-cover" class="kr-article-cover">
+					<img id="banner" src="">
+				</div>
+				<h2 id="kr-article-title" class="kr-article-title"></h2>
+			</div>
+			<!--顶部banner图 结束-->
+
+			<div class="mui-card">
+				<!--文章详细内容-->
+				<div id="kr-article-article" class="kr-article-article"></div>
+			</div>
+		</div>
+
+
+		<script src="js/mui.js"></script>
+		<script type="text/javascript">
+			mui.init()
+
+			mui.plusReady(function() {
+				document.addEventListener('get_detail', function(event) {
+					var id = event.detail.id;
+					var title = event.detail.title;
+					var img = event.detail.img;
+					var type = event.detail.type;
+					if (!id) {
+						return;
+					}
+					var userid = plus.storage.getItem("id")
+					document.getElementById('banner').src = "http://192.168.124.5:5000/image/" + img;
+					document.getElementById('kr-article-title').innerHTML = title;
+					mui.ajax('http://192.168.124.5:5000/content/' + id, {
+						data: {
+							userid : userid,
+							type: type
+						},
+						crossDomain: true,
+						dataType: 'json', //服务器返回json格式数据
+						type: 'get', //HTTP请求类型
+						timeout: 10000, //超时时间设置为10秒；
+						success: function(data) {
+							//服务器返回响应，根据响应结果，分析是否登录成功；
+							content = data;
+							document.getElementById('kr-article-article').innerHTML = data;
+						},
+						error: function(xhr, type, errorThrown) {
+							//异常处理；
+							console.log(errorThrown);
+						}
+					});
+					//前页传入的数据，直接渲染，无需等待ajax请求详情后
+				});
+			});
+		</script>
+	</body>
+
+</html>

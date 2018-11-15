@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<link href="css/frozenui/frozenui.css" rel="stylesheet" />
+
+	</head>
+
+	<body>
+
+
+		<div class="mui-input-group">
+			<div class="ui-form ui-border-t">
+					<div class="ui-form-item ui-border-b">
+						<label>
+							欢迎登录
+						</label>
+					</div>
+					<div class="mui-input-row">
+						<label>用户名</label>
+						<input type="text" class="mui-input-clear" placeholder="请输入用户名" id="user">
+					</div>
+					<div class="mui-input-row">
+						<label>密码</label>
+						<input type="password" class="mui-input-password" placeholder="请输入密码" id="password">
+					</div>
+					<div class="mui-button-row">
+						<button class="ui-btn-lg ui-btn-primary" id="loginbtn">
+							登录
+						</button>
+					</div>
+					<div class="mui-button-row">
+
+						<button class="ui-btn-lg" id="registerbtn">
+							注册
+						</button>
+					</div>
+
+			</div>
+		</div>
+
+		</div>
+
+		<script src="js/mui.js"></script>
+		<script type="text/javascript">
+			mui.init()
+
+
+			mui.plusReady(function() {
+
+				var page = mui.preload({
+					url: "register.html",
+					id: "register", //默认使用当前页面的url作为id
+					styles: {}, //窗口参数
+					extras: {} //自定义扩展参数
+				});
+				
+				var loginbtn = document.getElementById('loginbtn');
+				var registerbtn = document.getElementById('registerbtn');
+				
+				
+				loginbtn.addEventListener("tap", function() {
+					var user = document.getElementById("user").value;
+					var password = document.getElementById("password").value;
+					mui.ajax('http://192.168.124.5:5000/login', {
+						data: {
+							user: user,
+							password: password
+						},
+						type: 'post', //HTTP请求类型
+						success: function(data) {
+							//服务器返回响应，根据响应结果，分析是否登录成功；
+							if(data=="False") {
+								mui.toast("用户名密码错误");
+							} else {
+								plus.storage.setItem("LoginFlag", "1");
+								plus.storage.setItem("user", user);
+								plus.storage.setItem("id", data);
+								plus.webview.getWebviewById("my").reload();
+								plus.webview.show("my");
+								plus.webview.hide("login");
+								mui.toast("登录成功")
+							}
+						},
+						error: function(xhr, type, errorThrown) {
+							//异常处理；
+							console.log(type)
+							mui.toast("无法连接服务器");
+						}
+					});
+				});
+
+				registerbtn.addEventListener("tap", function() {
+					plus.webview.show("register");
+				});
+
+			});
+		</script>
+	</body>
+
+</html>
